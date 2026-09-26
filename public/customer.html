@@ -95,6 +95,18 @@
   </header>
 
   <main class="container">
+    <!-- Customer 16-Digit Unique Code Banner -->
+    <div class="card" style="background: white; border-left: 4px solid var(--accent); padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+      <div>
+        <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent); font-weight: 700;">Customer Identity</span>
+        <div style="font-size: 0.85rem; color: var(--gray-700);">Your 16-digit unique code to connect and bond with restaurants:</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span id="custUniqueCodeDisplay" style="font-family: monospace; background: #eef2ff; border: 1px solid #c7d2fe; padding: 4px 10px; border-radius: 6px; font-weight: bold; color: #3730a3; font-size: 1.05rem;">---- ---- ---- ----</span>
+        <button class="btn btn-secondary btn-sm" onclick="copyCustomerCode()">📋 Copy</button>
+      </div>
+    </div>
+
     <!-- Active Order Live Tracker (If order placed) -->
     <div id="activeOrderSection" class="card" style="display: none; border-left: 6px solid var(--primary); background: #f0fdf4;">
       <div class="card-header" style="border-color: #bbf7d0;">

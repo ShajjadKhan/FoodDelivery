@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Admin Panel | Food Delivery Platform Owner</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .stat-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+    .stat-value {
+      font-size: 1.85rem;
+      font-weight: 900;
+      color: var(--gray-900);
+      margin: 0.25rem 0;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .code-box {
+      font-family: monospace;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      color: #1e293b;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      border: 1px solid #cbd5e1;
+    }
+    .copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+    .copy-btn:hover {
+      color: var(--primary-dark);
+    }
+    .table-responsive {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    th {
+      background: var(--gray-100);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 700;
+      color: var(--gray-700);
+      border-bottom: 2px solid var(--gray-200);
+    }
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--gray-200);
+      color: var(--gray-800);
+    }
+    tr:hover td {
+      background: #f8fafc;
+    }
+  </style>
+</head>
+<body>
+  <!-- Master Header -->
+  <header class="header" style="background: #0f172a; border-bottom: 2px solid #334155; color: white;">
+    <div class="nav-container">
+      <a href="/admin.html" class="brand" style="color: white;">
+        <div class="brand-icon" style="background: #eab308; color: #78350f;">👑</div>
+        <div>
+          <h1 style="color: white;">Platform Master Control Panel</h1>
+          <span style="color: #fbbf24;">Platform Owner Authority • 16-Digit Code Connection Bonding</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <button class="nav-link active" onclick="switchAdminTab('bonding')">🔗 16-Digit Bonding Center</button>
+        <button class="nav-link" style="color: white; background: #1e293b;" onclick="switchAdminTab('restaurants')">🏪 Restaurants</button>
+        <button class="nav-link" style="color: white; background: #1e293b;" onclick="switchAdminTab('riders')">🛵 Riders</button>
+        <button class="nav-link" style="color: white; background: #1e293b;" onclick="switchAdminTab('customers')">🛒 Customers</button>
+        <button class="nav-link" style="color: white; background: #1e293b;" onclick="switchAdminTab('orders')">📋 Global Orders</button>
+        <a href="/" class="nav-link" style="color: #94a3b8; background: #1e293b;">🏠 Hub</a>
+      </div>
+      <div class="status-badge" style="background: #14532d; color: #86efac;">
+        <span class="status-dot" style="background: #22c55e;"></span>
+        <span>Owner Mode Active</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Top Statistics Grid -->
+    <div class="grid-4" style="margin-bottom: 1.5rem;">
+      <div class="stat-card">
+        <span class="stat-label">Gross Order Volume</span>
+        <div class="stat-value" style="color: var(--primary-dark);" id="statVolume">৳0.00</div>
+        <span style="font-size: 0.75rem; color: var(--gray-500);"><span id="statOrdersCount">0</span> total platform orders</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Active Restaurants</span>
+        <div class="stat-value" style="color: #0284c7;" id="statRestaurants">0</div>
+        <span style="font-size: 0.75rem; color: var(--gray-500);">Outlets operating</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Authorized Riders</span>
+        <div class="stat-value" style="color: #d97706;" id="statRiders">0</div>
+        <span style="font-size: 0.75rem; color: var(--gray-500);">Verified delivery fleet</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Active Connection Bonds</span>
+        <div class="stat-value" style="color: #7c3aed;" id="statConnections">0</div>
+        <span style="font-size: 0.75rem; color: var(--gray-500);">16-Digit unique bonds</span>
+      </div>
+    </div>
+
+    <!-- TAB 1: 16-Digit Connection Bonding Center (TawreedFlow / ProcureFlow Style) -->
+    <section id="admin-tab-bonding">
+      <!-- Bonding Action Box -->
+      <div class="card" style="border-left: 5px solid #6366f1; background: #faf5ff;">
+        <div class="card-header" style="border-color: #e9d5ff;">
+          <h3 class="card-title" style="color: #581c87;">
+            🔗 16-Digit Unique Code Connection Bonding (ProcureFlow / TawreedFlow Mechanism)
+          </h3>
+          <span class="badge" style="background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe;">Bonding Protocol</span>
+        </div>
+        <p style="font-size: 0.85rem; color: #4b5563; margin-bottom: 1rem;">
+          In this platform, all restaurants, riders, and customers are assigned an immutable <strong>16-digit unique code</strong> (e.g. <code>4829-1047-9281-5534</code>). Connecting them forms an authenticated bond, ensuring riders receive orders only from their bonded restaurant network.
+        </p>
+
+        <form id="bondForm" onsubmit="submitAdminBond(event)" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 260px; margin-bottom: 0;">
+            <label class="form-label">Target 16-Digit Unique Code *</label>
+            <input type="text" class="form-control" id="targetCodeInput" required placeholder="e.g. 4829-1047-9281-5534" oninput="formatCodeInput(this)">
+          </div>
+
+          <div class="form-group" style="flex: 1; min-width: 220px; margin-bottom: 0;">
+            <label class="form-label">Bond With Restaurant *</label>
+            <select class="form-control" id="bondRestSelect" required>
+              <option value="">Select Restaurant...</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="background: #6366f1;">
+            🔗 Establish 16-Digit Bond
+          </button>
+        </form>
+      </div>
+
+      <!-- Active Connection Bonds Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📜 Active Platform Connection Bonds</h3>
+          <button class="btn btn-secondary btn-sm" onclick="loadConnections()">🔄 Refresh Bonds</button>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Restaurant / Shop</th>
+                <th>Restaurant 16-Digit Code</th>
+                <th>Bonded Entity (Rider / Customer)</th>
+                <th>Entity 16-Digit Code</th>
+                <th>Role</th>
+                <th>Connected Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="connectionsTableBody">
+              <tr><td colspan="7" style="text-align: center; color: var(--gray-500);">Loading connection bonds...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Restaurants Management -->
+    <section id="admin-tab-restaurants" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800;">🏪 Restaurants & Outlets Authority</h2>
+          <p style="font-size: 0.85rem; color: var(--gray-500);">Manage restaurant profiles, assign reminder frequencies, and inspect 16-digit codes.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('addRestaurantModal')">➕ Register New Restaurant</button>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Restaurant Name</th>
+                <th>16-Digit Unique Code</th>
+                <th>Owner & Phone</th>
+                <th>Address</th>
+                <th>7h Check Interval</th>
+                <th>Bonded Riders</th>
+                <th>Total Orders</th>
+              </tr>
+            </thead>
+            <tbody id="restaurantsTableBody">
+              <tr><td colspan="8" style="text-align: center; color: var(--gray-500);">Loading restaurants...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Delivery Riders Management -->
+    <section id="admin-tab-riders" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800;">🛵 Delivery Fleet Authority</h2>
+          <p style="font-size: 0.85rem; color: var(--gray-500);">Manage rider accounts, Pathao-style cash float balance, and credit allowances.</p>
+        </div>
+        <button class="btn btn-warning" onclick="openAdminAddUserModal('delivery')">➕ Register New Rider</button>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Rider Name</th>
+                <th>16-Digit Unique Code</th>
+                <th>WhatsApp Phone</th>
+                <th>Cash Float Balance</th>
+                <th>Credit Permission</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="ridersTableBody">
+              <tr><td colspan="8" style="text-align: center; color: var(--gray-500);">Loading riders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Customers Management -->
+    <section id="admin-tab-customers" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800;">🛒 Verified Customer Database</h2>
+          <p style="font-size: 0.85rem; color: var(--gray-500);">Anti-fake order protection: verified registered customer list with 16-digit unique codes.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="openAdminAddUserModal('customer')">➕ Register Customer</button>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer Name</th>
+                <th>16-Digit Unique Code</th>
+                <th>WhatsApp Phone</th>
+                <th>Registered On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <tr><td colspan="6" style="text-align: center; color: var(--gray-500);">Loading customers...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: Global Orders -->
+    <section id="admin-tab-orders" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📋 Global Orders Dispatch Stream</h3>
+          <button class="btn btn-secondary btn-sm" onclick="loadAdminOrders()">🔄 Refresh</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Restaurant</th>
+                <th>Customer</th>
+                <th>Assigned Rider</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>8-Digit Delivery OTP</th>
+                <th>Customer OTP</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody id="adminOrdersTableBody">
+              <tr><td colspan="9" style="text-align: center; color: var(--gray-500);">Loading global orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: Add Restaurant -->
+  <div class="modal-overlay" id="addRestaurantModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title">➕ Register New Restaurant & Outlet</h3>
+        <button class="modal-close" onclick="closeModal('addRestaurantModal')">&times;</button>
+      </div>
+      <form onsubmit="submitAddRestaurant(event)">
+        <div class="form-group">
+          <label class="form-label">Restaurant / Shop Name *</label>
+          <input type="text" class="form-control" id="adminRestName" required placeholder="e.g. Star Kabab & Restaurant">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Owner Name *</label>
+          <input type="text" class="form-control" id="adminOwnerName" required placeholder="e.g. Haji Mohammad">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact / WhatsApp Phone *</label>
+          <input type="text" class="form-control" id="adminRestPhone" required placeholder="e.g. 017xxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Outlet Address *</label>
+          <input type="text" class="form-control" id="adminRestAddress" required placeholder="e.g. Dhanmondi 27, Dhaka">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Food Availability Follow-up Interval (Hours)</label>
+          <input type="number" class="form-control" id="adminRestInterval" value="7" min="1" max="48">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Login Password / PIN</label>
+          <input type="password" class="form-control" id="adminRestPassword" value="1234">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addRestaurantModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Restaurant</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add User (Rider or Customer) -->
+  <div class="modal-overlay" id="adminAddUserModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title" id="adminAddUserTitle">➕ Register User</h3>
+        <button class="modal-close" onclick="closeModal('adminAddUserModal')">&times;</button>
+      </div>
+      <form onsubmit="submitAdminAddUser(event)">
+        <input type="hidden" id="adminUserRole" value="delivery">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-control" id="adminUserName" required placeholder="e.g. Billal Hossain">
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp / Phone *</label>
+          <input type="text" class="form-control" id="adminUserPhone" required placeholder="e.g. 018xxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Login PIN / Password</label>
+          <input type="password" class="form-control" id="adminUserPassword" value="1234">
+        </div>
+
+        <div id="adminRiderFields">
+          <div class="form-group">
+            <label class="form-label">Initial Cash Float Balance (৳)</label>
+            <input type="number" class="form-control" id="adminUserCash" value="1000">
+            <small style="color: var(--gray-500); font-size: 0.75rem;">Pathao rule limit.</small>
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+            <input type="checkbox" id="adminUserCredit" style="width: 18px; height: 18px;">
+            <label for="adminUserCredit" style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+              Allow Credit Collection (No cash float limit)
+            </label>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('adminAddUserModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/socket-client.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

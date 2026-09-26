@@ -16,6 +16,7 @@ function switchTab(tabName) {
   if (tabName === 'orders') loadOrders();
   if (tabName === 'menu') loadProducts();
   if (tabName === 'users') loadUsers();
+  if (tabName === 'bonding') loadRestBonds();
 }
 
 // Modal Helpers
@@ -29,6 +30,20 @@ function closeModal(id) {
   if (el) el.classList.remove('open');
 }
 
+function formatCodeInput(input) {
+  let val = input.value.replace(/[^0-9]/g, '');
+  if (val.length > 16) val = val.substring(0, 16);
+  const parts = val.match(/.{1,4}/g);
+  input.value = parts ? parts.join('-') : val;
+}
+
+function copyRestCode() {
+  if (currentRestaurant && currentRestaurant.formatted_code) {
+    navigator.clipboard.writeText(currentRestaurant.formatted_code);
+    showToast(`Copied restaurant code: ${currentRestaurant.formatted_code}`, 'success');
+  }
+}
+
 // Load Restaurant Profile
 async function loadProfile() {
   try {
@@ -38,6 +53,9 @@ async function loadProfile() {
       currentRestaurant = data.restaurant;
       document.getElementById('restaurantTitle').innerText = data.restaurant.name;
       document.getElementById('settingInterval').value = data.restaurant.check_interval_hours || 7;
+      if (document.getElementById('restUniqueCodeDisplay')) {
+        document.getElementById('restUniqueCodeDisplay').innerText = data.restaurant.formatted_code;
+      }
     }
   } catch (e) {
     console.error('Error loading restaurant profile:', e);
@@ -494,8 +512,87 @@ async function editRiderFloat(id, currentBalance, currentCredit) {
 }
 
 // ==========================================
-// 5. SETTINGS
+// 5. SETTINGS & 16-DIGIT BONDING
 // ==========================================
+async function loadRestBonds() {
+  if (!currentRestaurant) return;
+  try {
+    const res = await fetch(`/api/connections?restaurant_id=${currentRestaurant.id}`);
+    const data = await res.json();
+    if (!data.success) return;
+
+    const ridersContainer = document.getElementById('restBondedRidersList');
+    const customersContainer = document.getElementById('restBondedCustomersList');
+
+    const riders = data.connections.filter(c => c.role === 'delivery');
+    const customers = data.connections.filter(c => c.role === 'customer');
+
+    ridersContainer.innerHTML = riders.map(r => `
+      <div style="border-bottom: 1px solid var(--gray-200); padding: 0.6rem 0; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>${r.user_name}</strong> (${r.user_phone})<br>
+          <span style="font-family:monospace; background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${r.formatted_user_code}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="disconnectRestBond(${r.id})">Unbond</button>
+      </div>
+    `).join('') || '<p style="color:var(--gray-500); padding: 0.5rem 0;">No riders bonded yet. Enter a rider code to connect!</p>';
+
+    customersContainer.innerHTML = customers.map(c => `
+      <div style="border-bottom: 1px solid var(--gray-200); padding: 0.6rem 0; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>${c.user_name}</strong> (${c.user_phone})<br>
+          <span style="font-family:monospace; background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${c.formatted_user_code}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="disconnectRestBond(${c.id})">Unbond</button>
+      </div>
+    `).join('') || '<p style="color:var(--gray-500); padding: 0.5rem 0;">No customers bonded yet.</p>';
+  } catch (e) {
+    console.error('Error loading restaurant bonds:', e);
+  }
+}
+
+async function submitRestaurantBond(e) {
+  e.preventDefault();
+  if (!currentRestaurant) return;
+  const targetCode = document.getElementById('restTargetCode').value;
+
+  try {
+    const res = await fetch('/api/connections/bond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_code: targetCode,
+        restaurant_id: currentRestaurant.id
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      playSuccessChime();
+      document.getElementById('restTargetCode').value = '';
+      loadRestBonds();
+    } else {
+      showToast(data.error || 'Bonding failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error during bonding', 'error');
+  }
+}
+
+async function disconnectRestBond(id) {
+  if (!confirm('Unbond this user from your restaurant?')) return;
+  try {
+    const res = await fetch(`/api/connections/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Unbonded successfully', 'info');
+      loadRestBonds();
+    }
+  } catch (e) {
+    showToast('Failed to unbond', 'error');
+  }
+}
+
 function openSettingsModal() {
   openModal('settingsModal');
 }

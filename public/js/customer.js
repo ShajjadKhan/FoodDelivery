@@ -32,6 +32,9 @@ async function loadCustomers() {
 
       currentCustomer = data.users[0];
       document.getElementById('orderPhone').value = currentCustomer.phone;
+      if (document.getElementById('custUniqueCodeDisplay')) {
+        document.getElementById('custUniqueCodeDisplay').innerText = currentCustomer.formatted_code || '---- ---- ---- ----';
+      }
     }
   } catch (e) {
     console.error('Error loading customers:', e);
@@ -41,15 +44,24 @@ async function loadCustomers() {
 function changeCustomer() {
   const select = document.getElementById('customerSelect');
   const userId = select.value;
-  // find customer
   fetch('/api/users?role=customer')
     .then(r => r.json())
     .then(d => {
       currentCustomer = d.users.find(u => u.id == userId);
       if (currentCustomer) {
         document.getElementById('orderPhone').value = currentCustomer.phone;
+        if (document.getElementById('custUniqueCodeDisplay')) {
+          document.getElementById('custUniqueCodeDisplay').innerText = currentCustomer.formatted_code || '---- ---- ---- ----';
+        }
       }
     });
+}
+
+function copyCustomerCode() {
+  if (currentCustomer && currentCustomer.formatted_code) {
+    navigator.clipboard.writeText(currentCustomer.formatted_code);
+    showToast(`Copied customer code: ${currentCustomer.formatted_code}`, 'success');
+  }
 }
 
 // 2. Load Products Menu

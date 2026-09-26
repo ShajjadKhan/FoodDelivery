@@ -8,13 +8,35 @@ Deployed on port **3333** (`http://10.12.14.16:3333`).
 
 ## 🚀 Key Architectural Pillars
 
-### 1. 👥 Three Dedicated Stakeholder Roles
+### 1. 👑 Platform Master Admin & Authority
+- Full platform ownership control panel (`/admin.html`).
+- Inspect gross order revenue volume, active outlets, fleet statistics, and live orders.
+- Create & manage Restaurants, Riders, and Customers.
+- Central **16-Digit Connection Bonding Center**: Directly establish or dissolve bonds between any restaurant and any rider or customer.
+
+---
+
+### 2. 🔗 16-Digit Unique Code Connection Bonding (ProcureFlow / TawreedFlow Style)
+Every entity in the platform is generated an immutable **16-digit unique numeric code** (formatted as `XXXX-XXXX-XXXX-XXXX`):
+- **Restaurant Code** (e.g. `8392-1049-5829-1029`)
+- **Delivery Rider Code** (e.g. `1092-3849-2019-4829`)
+- **Customer Code** (e.g. `4829-1029-3849-5720`)
+
+**How Connection Bonding Operates:**
+1. Any restaurant can enter a rider's or customer's 16-digit code to bond them into their delivery network.
+2. Any delivery rider can enter a restaurant's 16-digit code to connect and receive dispatch orders from that kitchen.
+3. Master Admin can bond any pairs globally with one click.
+4. **Network Protection**: When an order is marked ready for delivery, the system prioritizes dispatch notifications to **bonded riders**, preventing open-access leaks.
+
+---
+
+### 3. 👥 Three Dedicated Stakeholder Roles
 - **🏪 Restaurant / Shop**:
   - Live kitchen order management dispatch board.
   - Distinguishes **Fresh Food Items** (subject to 7-hour availability verification) vs. **Packaged Store Inventory** (tracked by quantity & expiry date).
   - Audio chimes upon incoming orders.
   - Generates 8-digit secure handover OTP when food is marked ready.
-  - User registration authority (Anti-fake order protection).
+  - Own 16-digit code display and quick bonding interface.
 - **🛵 Delivery Person (Rider)**:
   - Live radar listening for orders marked "Ready for Delivery".
   - **8-digit OTP Modal Requirement**: To prevent accidental clicks, riders must enter the 8-digit code received via Web push / WhatsApp.

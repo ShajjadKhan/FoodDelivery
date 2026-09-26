@@ -50,6 +50,10 @@ function selectRiderById(id) {
   document.getElementById('activeRiderPhone').innerText = `Phone: ${currentRider.phone}`;
   document.getElementById('activeRiderBalance').innerText = `৳${currentRider.cash_balance.toFixed(2)}`;
 
+  if (document.getElementById('riderUniqueCodeDisplay')) {
+    document.getElementById('riderUniqueCodeDisplay').innerText = currentRider.formatted_code || '---- ---- ---- ----';
+  }
+
   const badgeEl = document.getElementById('activeRiderCreditBadge');
   if (currentRider.allow_credit) {
     badgeEl.innerHTML = `<span class="badge badge-food" style="background:#d1fae5;color:#065f46;border-color:#a7f3d0;">💳 CREDIT APPROVED</span>`;
@@ -65,6 +69,48 @@ function selectRiderById(id) {
 
   loadRadarOrders();
   loadMyActiveOrders();
+}
+
+function copyRiderCode() {
+  if (currentRider && currentRider.formatted_code) {
+    navigator.clipboard.writeText(currentRider.formatted_code);
+    showToast(`Copied rider code: ${currentRider.formatted_code}`, 'success');
+  }
+}
+
+function formatCodeInput(input) {
+  let val = input.value.replace(/[^0-9]/g, '');
+  if (val.length > 16) val = val.substring(0, 16);
+  const parts = val.match(/.{1,4}/g);
+  input.value = parts ? parts.join('-') : val;
+}
+
+async function submitRiderBond(e) {
+  e.preventDefault();
+  if (!currentRider) return;
+  const targetCode = document.getElementById('riderConnectCode').value;
+
+  try {
+    const res = await fetch('/api/connections/bond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_code: targetCode,
+        user_id: currentRider.id
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      playSuccessChime();
+      document.getElementById('riderConnectCode').value = '';
+      loadRadarOrders();
+    } else {
+      showToast(data.error || 'Failed to bond with restaurant', 'error');
+    }
+  } catch (err) {
+    showToast('Network error bonding with restaurant', 'error');
+  }
 }
 
 // 2. Load Radar Orders (Orders Ready for Delivery)

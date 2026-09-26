@@ -50,14 +50,43 @@ const allAsync = (sql, params = []) => {
   });
 };
 
+// 16-digit code generator (TawreedFlow / ProcureFlow architecture)
+async function generate16DigitUniqueCode() {
+  while (true) {
+    let code = '';
+    for (let i = 0; i < 16; i++) {
+      code += Math.floor(Math.random() * 10).toString();
+    }
+    const userExists = await getAsync('SELECT id FROM users WHERE unique_code = ?', [code]);
+    const restExists = await getAsync('SELECT id FROM restaurants WHERE unique_code = ?', [code]);
+    if (!userExists && !restExists) {
+      return code;
+    }
+  }
+}
+
+// Clean and normalize 16-digit code
+function clean16DigitCode(input) {
+  if (!input) return '';
+  return input.toString().replace(/[^0-9]/g, '');
+}
+
+// Format 16-digit code as XXXX-XXXX-XXXX-XXXX
+function format16DigitCode(code) {
+  const clean = clean16DigitCode(code);
+  if (clean.length !== 16) return clean;
+  return clean.match(/.{1,4}/g).join('-');
+}
+
 async function initDatabase() {
-  // 1. Users table (Anti-fake protection: restaurants create delivery and customers)
+  // 1. Users table (Anti-fake protection & 16-digit unique code bonding)
   await runAsync(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      unique_code TEXT UNIQUE,
       name TEXT NOT NULL,
       phone TEXT UNIQUE NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('restaurant', 'delivery', 'customer')),
+      role TEXT NOT NULL CHECK(role IN ('master_admin', 'restaurant', 'delivery', 'customer')),
       password TEXT DEFAULT '1234',
       cash_balance REAL DEFAULT 0.00,
       allow_credit INTEGER DEFAULT 0,
@@ -67,11 +96,52 @@ async function initDatabase() {
     );
   `);
 
-  // 2. Restaurants profile & settings (configurable 7-hour follow-up)
+  // Migration: Ensure role CHECK constraint includes 'master_admin'
+  try {
+    const tableSql = await getAsync("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'");
+    if (tableSql && tableSql.sql && !tableSql.sql.includes('master_admin')) {
+      console.log('Migrating users table schema to allow master_admin role...');
+      await runAsync('PRAGMA foreign_keys = OFF;');
+      await runAsync(`
+        CREATE TABLE users_temp (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          unique_code TEXT UNIQUE,
+          name TEXT NOT NULL,
+          phone TEXT UNIQUE NOT NULL,
+          role TEXT NOT NULL CHECK(role IN ('master_admin', 'restaurant', 'delivery', 'customer')),
+          password TEXT DEFAULT '1234',
+          cash_balance REAL DEFAULT 0.00,
+          allow_credit INTEGER DEFAULT 0,
+          created_by INTEGER,
+          status TEXT DEFAULT 'active',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      await runAsync(`
+        INSERT INTO users_temp (id, unique_code, name, phone, role, password, cash_balance, allow_credit, created_by, status, created_at)
+        SELECT id, unique_code, name, phone, role, password, cash_balance, allow_credit, created_by, status, created_at FROM users;
+      `);
+      await runAsync('DROP TABLE users;');
+      await runAsync('ALTER TABLE users_temp RENAME TO users;');
+      await runAsync('PRAGMA foreign_keys = ON;');
+      console.log('Users table schema migration completed.');
+    }
+  } catch (err) {
+    console.error('Schema migration note:', err.message);
+  }
+
+  // Migration: Ensure unique_code column exists on users
+  const userColumns = await allAsync("PRAGMA table_info(users)");
+  if (!userColumns.some(c => c.name === 'unique_code')) {
+    await runAsync('ALTER TABLE users ADD COLUMN unique_code TEXT');
+  }
+
+  // 2. Restaurants profile & settings (with 16-digit unique code)
   await runAsync(`
     CREATE TABLE IF NOT EXISTS restaurants (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL UNIQUE,
+      unique_code TEXT UNIQUE,
       name TEXT NOT NULL,
       address TEXT NOT NULL,
       phone TEXT NOT NULL,
@@ -82,7 +152,29 @@ async function initDatabase() {
     );
   `);
 
-  // 3. Products table (item_type: 'food' vs 'inventory')
+  // Migration: Ensure unique_code column exists on restaurants
+  const restColumns = await allAsync("PRAGMA table_info(restaurants)");
+  if (!restColumns.some(c => c.name === 'unique_code')) {
+    await runAsync('ALTER TABLE restaurants ADD COLUMN unique_code TEXT');
+  }
+
+  // 3. Connections table (16-Digit Code Bonding Mechanism from ProcureFlow / TawreedFlow)
+  await runAsync(`
+    CREATE TABLE IF NOT EXISTS connections (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      restaurant_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      role TEXT NOT NULL CHECK(role IN ('delivery', 'customer')),
+      connected_by INTEGER,
+      is_active INTEGER DEFAULT 1,
+      connected_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(restaurant_id, user_id),
+      FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
+
+  // 4. Products table (item_type: 'food' vs 'inventory')
   await runAsync(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,7 +194,7 @@ async function initDatabase() {
     );
   `);
 
-  // 4. Orders table
+  // 5. Orders table
   await runAsync(`
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,11 +202,11 @@ async function initDatabase() {
       restaurant_id INTEGER NOT NULL,
       customer_id INTEGER NOT NULL,
       delivery_person_id INTEGER,
-      status TEXT DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'ACCEPTED', 'PREPARING', 'READY_FOR_DELIVERY', 'ASSIGNED', 'PICKED_UP', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED')),
+      status TEXT DEFAULT 'PENDING',
       total_amount REAL NOT NULL,
       delivery_fee REAL DEFAULT 50.00,
       payment_method TEXT DEFAULT 'CASH_ON_DELIVERY',
-      payment_status TEXT DEFAULT 'UNPAID' CHECK(payment_status IN ('UNPAID', 'PAID_TO_DELIVERY', 'SETTLED')),
+      payment_status TEXT DEFAULT 'UNPAID',
       delivery_otp TEXT NOT NULL,
       customer_otp TEXT NOT NULL,
       delivery_address TEXT NOT NULL,
@@ -128,7 +220,7 @@ async function initDatabase() {
     );
   `);
 
-  // 5. Order items
+  // 6. Order items
   await runAsync(`
     CREATE TABLE IF NOT EXISTS order_items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -142,7 +234,7 @@ async function initDatabase() {
     );
   `);
 
-  // 6. Notification logs (WhatsApp & Web Push)
+  // 7. Notification logs
   await runAsync(`
     CREATE TABLE IF NOT EXISTS notifications_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -156,129 +248,55 @@ async function initDatabase() {
     );
   `);
 
-  // 7. System settings
-  await runAsync(`
-    CREATE TABLE IF NOT EXISTS settings (
-      key TEXT PRIMARY KEY,
-      value TEXT NOT NULL,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
-
-  // Check if we need to seed demo data
-  const userCount = await getAsync('SELECT COUNT(*) as count FROM users');
-  if (userCount.count === 0) {
-    console.log('Seeding initial data for Food Delivery System...');
-
-    // 1. Restaurant owner
-    const restUser = await runAsync(
-      `INSERT INTO users (name, phone, role, password) VALUES (?, ?, ?, ?)`,
-      ["Sultan's Kitchen & Grill", '01711000001', 'restaurant', '1234']
-    );
-
-    // Restaurant details
-    const restProfile = await runAsync(
-      `INSERT INTO restaurants (user_id, name, address, phone, check_interval_hours) VALUES (?, ?, ?, ?, ?)`,
-      [restUser.lastID, "Sultan's Kitchen & Grill", 'Road 11, Banani, Dhaka', '01711000001', 7]
-    );
-
-    const restaurantId = restProfile.lastID;
-
-    // 2. Delivery Persons
-    // Rahim: Cash in hand ৳1,500, no credit allowed (Pathao strict float mode)
+  // 8. Ensure Master Admin account exists
+  let masterAdmin = await getAsync("SELECT * FROM users WHERE role = 'master_admin'");
+  if (!masterAdmin) {
+    const adminCode = await generate16DigitUniqueCode();
     await runAsync(
-      `INSERT INTO users (name, phone, role, password, cash_balance, allow_credit, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      ['Rahim Ahmed (Delivery)', '01811000002', 'delivery', '1234', 1500.00, 0, restUser.lastID]
+      `INSERT INTO users (unique_code, name, phone, role, password)
+       VALUES (?, ?, ?, 'master_admin', 'admin')`,
+      [adminCode, 'Platform Owner (Master Admin)', '01799999999']
     );
+    console.log(`Master Admin created with 16-digit unique code: ${adminCode}`);
+  }
 
-    // Karim: Credit collection allowed by restaurant owner (Can accept even with ৳0 balance)
-    await runAsync(
-      `INSERT INTO users (name, phone, role, password, cash_balance, allow_credit, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      ['Karim Khan (Credit Approved)', '01911000003', 'delivery', '1234', 0.00, 1, restUser.lastID]
-    );
+  // Populate missing unique codes for existing users
+  const usersMissingCodes = await allAsync('SELECT id FROM users WHERE unique_code IS NULL OR unique_code = ""');
+  for (const u of usersMissingCodes) {
+    const code = await generate16DigitUniqueCode();
+    await runAsync('UPDATE users SET unique_code = ? WHERE id = ?', [code, u.id]);
+  }
 
-    // 3. Customer created by restaurant (Anti-fake order protection)
-    await runAsync(
-      `INSERT INTO users (name, phone, role, password, created_by) VALUES (?, ?, ?, ?, ?)`,
-      ['Tanvir Hossain (Customer)', '01700000000', 'customer', '1234', restUser.lastID]
-    );
+  // Populate missing unique codes for existing restaurants
+  const restsMissingCodes = await allAsync('SELECT id FROM restaurants WHERE unique_code IS NULL OR unique_code = ""');
+  for (const r of restsMissingCodes) {
+    const code = await generate16DigitUniqueCode();
+    await runAsync('UPDATE restaurants SET unique_code = ? WHERE id = ?', [code, r.id]);
+  }
 
-    // 4. Products: Mix of fresh Food items (needs follow-up) and Packaged Inventory items (qty + expiry)
-    const sampleProducts = [
-      // Fresh Food items (needs periodic 7-hour follow-up verification)
-      {
-        name: 'Royal Kacchi Biryani (Full)',
-        desc: 'Traditional Dum Kacchi with tender mutton, aromatic basmati rice & roasted potato.',
-        price: 450.00,
-        cat: 'Main Course',
-        type: 'food',
-        stock: 0,
-        exp: null,
-        avail: 1
-      },
-      {
-        name: 'Special Beef Tehari',
-        desc: 'Old Dhaka mustard oil beef tehari with fresh green chilies.',
-        price: 280.00,
-        cat: 'Main Course',
-        type: 'food',
-        stock: 0,
-        exp: null,
-        avail: 1
-      },
-      {
-        name: 'Chicken Roast & Polao Platter',
-        desc: 'Shahi chicken roast with rich masala gravy, served with aromatic chinigura polao.',
-        price: 320.00,
-        cat: 'Platters',
-        type: 'food',
-        stock: 0,
-        exp: null,
-        avail: 1
-      },
-      // Packaged / Store Inventory items (Quantity + Expiry date)
-      {
-        name: 'Traditional Borhani (500ml)',
-        desc: 'Chilled spiced yogurt drink prepared with sour curd, mint and special masala.',
-        price: 90.00,
-        cat: 'Beverages',
-        type: 'inventory',
-        stock: 45,
-        exp: '2026-10-15',
-        avail: 1
-      },
-      {
-        name: 'Shahi Jorda Sweet',
-        desc: 'Authentic ceremonial sweet dessert with baby sweets and dry nuts.',
-        price: 80.00,
-        cat: 'Dessert',
-        type: 'inventory',
-        stock: 30,
-        exp: '2026-10-12',
-        avail: 1
-      },
-      {
-        name: 'Premium Mineral Water (1 Liter)',
-        desc: 'Purified mineral bottled drinking water.',
-        price: 30.00,
-        cat: 'Beverages',
-        type: 'inventory',
-        stock: 120,
-        exp: '2027-01-01',
-        avail: 1
-      }
-    ];
-
-    for (const p of sampleProducts) {
+  // Ensure default connections exist between demo restaurant and demo riders/customer
+  const demoRest = await getAsync('SELECT id FROM restaurants LIMIT 1');
+  if (demoRest) {
+    const demoRiders = await allAsync("SELECT id FROM users WHERE role = 'delivery'");
+    for (const rider of demoRiders) {
       await runAsync(
-        `INSERT INTO products (restaurant_id, name, description, price, category, item_type, stock_quantity, expiry_date, is_available, last_verified_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-        [restaurantId, p.name, p.desc, p.price, p.cat, p.type, p.stock, p.exp, p.avail]
+        `INSERT OR IGNORE INTO connections (restaurant_id, user_id, role, connected_by)
+         VALUES (?, ?, 'delivery', 1)`,
+        [demoRest.id, rider.id]
       );
     }
 
-    console.log('Sample data seeding complete!');
+    const demoCustomer = await getAsync("SELECT id FROM users WHERE role = 'customer' LIMIT 1");
+    if (demoCustomer) {
+      await runAsync(
+        `INSERT OR IGNORE INTO connections (restaurant_id, user_id, role, connected_by)
+         VALUES (?, ?, 'customer', 1)`,
+        [demoRest.id, demoCustomer.id]
+      );
+    }
   }
+
+  console.log('Database initialization and connection bonding structure verified.');
 }
 
 module.exports = {
@@ -286,5 +304,8 @@ module.exports = {
   runAsync,
   getAsync,
   allAsync,
-  initDatabase
+  initDatabase,
+  generate16DigitUniqueCode,
+  clean16DigitCode,
+  format16DigitCode
 };

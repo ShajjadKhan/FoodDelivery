@@ -61,12 +61,28 @@
       </div>
 
       <!-- Pathao Rule Warning Note -->
-      <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #334155; font-size: 0.825rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.5rem;">
-        <span>ℹ️</span>
-        <span id="floatRuleExplainer">
-          <strong>Pathao Dispatch Rule:</strong> You can only accept orders where order total ≤ your cash float. Orders exceeding your cash balance will be locked unless credit is authorized by the restaurant.
-        </span>
+      <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #334155; font-size: 0.825rem; color: #cbd5e1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span>ℹ️</span>
+          <span id="floatRuleExplainer">
+            <strong>Pathao Dispatch Rule:</strong> You can only accept orders where order total ≤ your cash float. Orders exceeding your cash balance will be locked unless credit is authorized by the restaurant.
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 0.75rem; color: #94a3b8;">Your 16-Digit Code:</span>
+          <span id="riderUniqueCodeDisplay" style="font-family: monospace; background: #334155; padding: 2px 8px; border-radius: 4px; font-weight: bold; color: #38bdf8;">---- ---- ---- ----</span>
+          <button class="btn btn-secondary btn-sm" onclick="copyRiderCode()" style="padding: 2px 6px; font-size: 0.75rem;">📋 Copy</button>
+        </div>
       </div>
+    </div>
+
+    <!-- Quick Bond with Restaurant -->
+    <div class="card" style="padding: 0.85rem 1.25rem; background: #f0fdf4; border-left: 4px solid #10b981; margin-bottom: 1.5rem;">
+      <form onsubmit="submitRiderBond(event)" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: #065f46;">🔗 Connect to Restaurant:</span>
+        <input type="text" class="form-control" id="riderConnectCode" placeholder="Enter Restaurant 16-Digit Code" style="flex: 1; min-width: 220px; padding: 0.4rem 0.6rem;" oninput="formatCodeInput(this)">
+        <button type="submit" class="btn btn-primary btn-sm">Bond with Restaurant</button>
+      </form>
     </div>
 
     <!-- Active Assigned Orders (Picked Up / On the road) -->
