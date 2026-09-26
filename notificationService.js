@@ -35,9 +35,16 @@ async function sendNotification({ recipientPhone, recipientRole, channel = 'WHAT
       });
     }
 
-    // Direct WhatsApp web link for manual testing or gateway hook
-    const cleanPhone = recipientPhone.replace(/[^0-9]/g, '');
-    const waLink = `https://wa.me/${cleanPhone.startsWith('88') ? cleanPhone : '88' + cleanPhone}?text=${encodeURIComponent(message)}`;
+    // Direct WhatsApp web link for Saudi / International format
+    let cleanPhone = recipientPhone.replace(/[^0-9]/g, '');
+    if (cleanPhone.startsWith('05')) {
+      cleanPhone = '966' + cleanPhone.substring(1);
+    } else if (cleanPhone.startsWith('5') && cleanPhone.length === 9) {
+      cleanPhone = '966' + cleanPhone;
+    } else if (!cleanPhone.startsWith('966') && cleanPhone.length === 10) {
+      cleanPhone = '966' + cleanPhone;
+    }
+    const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 
     return {
       success: true,
@@ -53,15 +60,16 @@ async function sendNotification({ recipientPhone, recipientRole, channel = 'WHAT
   }
 }
 
-// Helper to notify Delivery Person when order is ready
+// Helper to notify Delivery Person when order is ready (Saudi Local Vendor Radar)
 async function notifyDeliveryPersonOrderReady(order, deliveryPersonPhone, io) {
-  const message = `🔔 [FOOD DELIVERY RADAR]\nOrder #${order.order_number} is READY FOR PICKUP!\n` +
-    `🏪 Restaurant: ${order.restaurant_name}\n` +
-    `📍 Pickup: ${order.restaurant_address}\n` +
-    `🏠 Deliver to: ${order.delivery_address}\n` +
-    `💰 Order Value: ৳${order.total_amount} | Fee: ৳${order.delivery_fee}\n` +
-    `🔑 YOUR 8-DIGIT ACCEPTANCE CODE: *${order.delivery_otp}*\n` +
-    `⚠️ To accept this delivery, open WebApp and enter this 8-digit OTP code to avoid accidental clicks!`;
+  const message = `🔔 [رادار مناديب التوصيل | SAUDI VENDOR RADAR]\n` +
+    `طلب جديد جاهز للاستلام والتوصيل! (#${order.order_number})\n` +
+    `🏪 المتجر / المطعم: ${order.restaurant_name}\n` +
+    `📍 موقع الاستلام: ${order.restaurant_address}\n` +
+    `🏠 عنوان العميل: ${order.delivery_address}\n` +
+    `💰 قيمة الطلب: ${order.total_amount} ر.س (SAR) | أتعاب التوصيل: ${order.delivery_fee} ر.س\n` +
+    `🔑 رمز قبول الطلب (8 أرقام): *${order.delivery_otp}*\n` +
+    `⚠️ لمنع القبول بالخطأ، افتح التطبيق وأدخل هذا الرمز 8 أرقام لتأكيد الاستلام والانطلاق!`;
 
   return await sendNotification({
     recipientPhone: deliveryPersonPhone,
@@ -73,15 +81,15 @@ async function notifyDeliveryPersonOrderReady(order, deliveryPersonPhone, io) {
   });
 }
 
-// Helper to notify Customer with Delivery Confirmation OTP
+// Helper to notify Customer with Delivery Confirmation OTP (Saudi Customer Update)
 async function notifyCustomerOrderUpdate(order, customerPhone, statusDescription, io) {
-  let message = `🍽️ [ORDER UPDATE - #${order.order_number}]\n` +
-    `Status: ${statusDescription}\n` +
-    `Total: ৳${order.total_amount}\n`;
+  let message = `🍽️ [تحديث الطلب | ORDER UPDATE - #${order.order_number}]\n` +
+    `الحالة: ${statusDescription}\n` +
+    `الإجمالي المطلوب: ${order.total_amount} ر.س (SAR)\n`;
 
   if (order.customer_otp) {
-    message += `🔐 YOUR DELIVERY CONFIRMATION OTP: *${order.customer_otp}*\n` +
-      `Give this OTP to the delivery person only after receiving your food!`;
+    message += `🔐 رمز تأكيد الاستلام الخاص بك: *${order.customer_otp}*\n` +
+      `يرجى تزويد مندوب التوصيل بهذا الرمز فقط عند استلام وجبتك نقداً أو عبر مدى!`;
   }
 
   return await sendNotification({

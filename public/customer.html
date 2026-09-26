@@ -164,12 +164,12 @@
     <!-- Restaurant Banner -->
     <div class="card" style="background: white; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
       <div>
-        <h2 id="restNameBanner" style="font-size: 1.4rem; font-weight: 800;">Sultan's Kitchen & Grill</h2>
-        <div style="font-size: 0.85rem; color: var(--gray-500);">📍 Road 11, Banani, Dhaka • Open for Orders</div>
+        <h2 id="restNameBanner" style="font-size: 1.35rem; font-weight: 800;">مطابخ ومطاعم نجد للضيافة (Najd Traditional Kitchens & Vendor)</h2>
+        <div style="font-size: 0.85rem; color: var(--gray-500);">📍 طريق الملك فهد، حي الملقا، الرياض (King Fahd Rd, Al Malqa, Riyadh) • متاح للطلب والتوصيل</div>
       </div>
       <div style="display: flex; gap: 0.5rem;">
-        <span class="badge badge-food">Fresh Food Items Available</span>
-        <span class="badge badge-inventory">Packaged Stock Tracked</span>
+        <span class="badge badge-food">طبخ يومي طازج (Fresh Food)</span>
+        <span class="badge badge-inventory">تموينات ومشروبات (Packaged Stock)</span>
       </div>
     </div>
 
@@ -201,26 +201,26 @@
       <div style="background: var(--gray-100); padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
           <span>Subtotal:</span>
-          <strong id="cartSubtotal">৳0.00</strong>
+          <strong id="cartSubtotal">SAR 0.00</strong>
         </div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
           <span>Delivery Fee:</span>
-          <strong>৳50.00</strong>
+          <strong>15.00 SAR</strong>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; border-top: 1px dashed var(--gray-300); padding-top: 6px; margin-top: 4px;">
           <span>Total:</span>
-          <span id="cartTotal" style="color: var(--primary-dark);">৳50.00</span>
+          <span id="cartTotal" style="color: var(--primary-dark);">15.00 SAR</span>
         </div>
       </div>
 
       <form onsubmit="submitCheckout(event)">
         <div class="form-group">
           <label class="form-label">Delivery Address *</label>
-          <input type="text" class="form-control" id="orderAddress" required value="House 42, Road 15, Dhanmondi, Dhaka">
+          <input type="text" class="form-control" id="orderAddress" required value="House 42, Road 15, Dhanmondi, Riyadh">
         </div>
         <div class="form-group">
           <label class="form-label">WhatsApp Contact Number *</label>
-          <input type="text" class="form-control" id="orderPhone" required value="01700000000">
+          <input type="text" class="form-control" id="orderPhone" required value="0558889900">
           <small style="color: var(--gray-500); font-size: 0.75rem;">You will receive your delivery confirmation OTP here.</small>
         </div>
         <div class="form-group">

@@ -248,14 +248,14 @@ async function initDatabase() {
     );
   `);
 
-  // 8. Ensure Master Admin account exists
+  // 8. Ensure Master Admin account exists (Saudi Platform Authority)
   let masterAdmin = await getAsync("SELECT * FROM users WHERE role = 'master_admin'");
   if (!masterAdmin) {
     const adminCode = await generate16DigitUniqueCode();
     await runAsync(
       `INSERT INTO users (unique_code, name, phone, role, password)
        VALUES (?, ?, ?, 'master_admin', 'admin')`,
-      [adminCode, 'Platform Owner (Master Admin)', '01799999999']
+      [adminCode, 'إدارة المنصة - المملكة العربية السعودية (KSA Master Admin)', '0599999999']
     );
     console.log(`Master Admin created with 16-digit unique code: ${adminCode}`);
   }
@@ -274,7 +274,151 @@ async function initDatabase() {
     await runAsync('UPDATE restaurants SET unique_code = ? WHERE id = ?', [code, r.id]);
   }
 
-  // Ensure default connections exist between demo restaurant and demo riders/customer
+  // Check if we need to seed or migrate to Saudi Local Vendor ecosystem
+  const isSaudiSeeded = await getAsync("SELECT id FROM restaurants WHERE name LIKE '%نجد%' OR name LIKE '%الرومانسية%' OR address LIKE '%الرياض%'");
+  if (!isSaudiSeeded) {
+    console.log('Upgrading platform catalog and profiles to Saudi Local Vendor ecosystem (SAR / ر.س)...');
+
+    // Update primary restaurant to Saudi Vendor / Matbak
+    const primaryRest = await getAsync('SELECT id, user_id FROM restaurants LIMIT 1');
+    if (primaryRest) {
+      await runAsync(
+        `UPDATE restaurants SET 
+          name = 'مطابخ ومطاعم نجد للضيافة (Najd Traditional Kitchens & Vendor)',
+          address = 'طريق الملك فهد، حي الملقا، الرياض (King Fahd Rd, Al Malqa, Riyadh)',
+          phone = '0501234567'
+         WHERE id = ?`,
+        [primaryRest.id]
+      );
+      await runAsync(
+        `UPDATE users SET name = 'مطابخ ومطاعم نجد للضيافة', phone = '0501234567' WHERE id = ?`,
+        [primaryRest.user_id]
+      );
+
+      // Update riders to Saudi couriers (Mandoob)
+      await runAsync(
+        `UPDATE users SET name = 'فهد الدوسري (Fahad Al-Dossari - Mandoob)', phone = '0541112233', cash_balance = 350.00, allow_credit = 0 WHERE role = 'delivery' AND id = 2`
+      );
+      await runAsync(
+        `UPDATE users SET name = 'سعد القحطاني (Saad Al-Qahtani - Credit Mandoob)', phone = '0562223344', cash_balance = 0.00, allow_credit = 1 WHERE role = 'delivery' AND id = 3`
+      );
+
+      // Update customer
+      await runAsync(
+        `UPDATE users SET name = 'عبدالعزيز الشمري (Abdulaziz Al-Shammari)', phone = '0558889900' WHERE id = (SELECT id FROM users WHERE role = 'customer' LIMIT 1)`
+      );
+
+      // Replace products with authentic Saudi local dishes & store inventory
+      await runAsync('DELETE FROM products WHERE restaurant_id = ?', [primaryRest.id]);
+
+      const saudiProducts = [
+        // Fresh Food Items (طبخ طازج يومي - يخضع لتذكير 7 ساعات)
+        {
+          name: 'حبة دجاج مندي مع الأرز البشاور (Chicken Mandi with Peshawari Rice)',
+          desc: 'دجاج متبل على الطريقة التقليدية مطهو في حفرة المندي مع رز بشاور مدخن والمكسرات وصوص الدقوس الحار.',
+          price: 44.00,
+          cat: 'الأطباق الرئيسية (Main Dishes)',
+          type: 'food',
+          stock: 0,
+          exp: null,
+          avail: 1
+        },
+        {
+          name: 'كبسة لحم حاشي طازج مكموم (Fresh Camel Hashi Meat Kabsa)',
+          desc: 'لحم حاشي بلدي طازج مطهو بخلطة بهارات نجدية أصيلة مع الأرز العنبر والسمن البري.',
+          price: 68.00,
+          cat: 'الأطباق الرئيسية (Main Dishes)',
+          type: 'food',
+          stock: 0,
+          exp: null,
+          avail: 1
+        },
+        {
+          name: 'مظبي دجاج على الحجر الفحمي (Stone-Grilled Chicken Madhbi)',
+          desc: 'نصف حبة دجاج مظبي مشوي بعناية على حجارة الجمر المشتعلة مع طحينة وخبر مفرود طازج.',
+          price: 26.00,
+          cat: 'الأطباق الرئيسية (Main Dishes)',
+          type: 'food',
+          stock: 0,
+          exp: null,
+          avail: 1
+        },
+        {
+          name: 'صحن شاورما عربي دجاج جامبو (Arabic Chicken Shawarma Platter)',
+          desc: 'شاورما دجاج متبلة في خبز صاج مقطع، تقدم مع بطاطس مقلية مقرمشة، ثومية، مخلل وصوص خاص.',
+          price: 28.00,
+          cat: 'الشاورما والسناك (Shawarma & Snacks)',
+          type: 'food',
+          stock: 0,
+          exp: null,
+          avail: 1
+        },
+        {
+          name: 'كنافة نابلسية ملكية بالقشطة والجبن (Royal Kunafa with Cream & Cheese)',
+          desc: 'كنافة ذهبية مقرمشة محشوة بالجبن والقشطة الفاخرة مع الشيرة والفستق الحلبي المطحون.',
+          price: 24.00,
+          cat: 'الحلويات (Desserts)',
+          type: 'food',
+          stock: 0,
+          exp: null,
+          avail: 1
+        },
+        // Store / Packaged Inventory (تموينات وبقالة - بالكمية وتاريخ الصلاحية)
+        {
+          name: 'لبن المراعي طازج كامل الدسم 1 لتر (Almarai Fresh Laban 1L)',
+          desc: 'لبن طبيعي طازج مصنوع من حليب الأبقار النقي 100%، غني بالكالسيوم والفيتامينات.',
+          price: 7.50,
+          cat: 'المشروبات والألبان (Beverages & Dairy)',
+          type: 'inventory',
+          stock: 65,
+          exp: '2026-10-18',
+          avail: 1
+        },
+        {
+          name: 'تمر سكري القصيم فاخر مكنوز 1 كجم (Qassim Premium Sukkari Dates 1KG)',
+          desc: 'تمور سكرية فاخرة مختارة من مزارع القصيم، رطبة وغنية بالحلاوة الطبيعية الأصيلة.',
+          price: 35.00,
+          cat: 'التمور والضيافة (Dates & Hospitality)',
+          type: 'inventory',
+          stock: 40,
+          exp: '2027-04-30',
+          avail: 1
+        },
+        {
+          name: 'مياه صفا مكة المعدنية كرتون عبوات صغيرة (Safa Makkah Mineral Water)',
+          desc: 'مياه شرب نقية معبأة، مناسبة للضيافة والرحلات.',
+          price: 2.00,
+          cat: 'المشروبات والألبان (Beverages & Dairy)',
+          type: 'inventory',
+          stock: 120,
+          exp: '2027-08-01',
+          avail: 1
+        },
+        {
+          name: 'خلطة قهوة سعودية ملكية بالهيل والزعفران (Saudi Coffee with Cardamom & Saffron)',
+          desc: 'بن هرري درجة أولى مطحون مع أجود أنواع الهيل والزعفران الأصلي للضيافة السعودية.',
+          price: 29.00,
+          cat: 'التمور والضيافة (Dates & Hospitality)',
+          type: 'inventory',
+          stock: 25,
+          exp: '2027-06-15',
+          avail: 1
+        }
+      ];
+
+      for (const p of saudiProducts) {
+        await runAsync(
+          `INSERT INTO products (restaurant_id, name, description, price, category, item_type, stock_quantity, expiry_date, is_available, last_verified_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+          [primaryRest.id, p.name, p.desc, p.price, p.cat, p.type, p.stock, p.exp, p.avail]
+        );
+      }
+
+      console.log('Saudi Local Vendor catalog seeded successfully!');
+    }
+  }
+
+  // Ensure default connections exist
   const demoRest = await getAsync('SELECT id FROM restaurants LIMIT 1');
   if (demoRest) {
     const demoRiders = await allAsync("SELECT id FROM users WHERE role = 'delivery'");

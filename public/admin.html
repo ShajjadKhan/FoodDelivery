@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -109,7 +109,7 @@
     <div class="grid-4" style="margin-bottom: 1.5rem;">
       <div class="stat-card">
         <span class="stat-label">Gross Order Volume</span>
-        <div class="stat-value" style="color: var(--primary-dark);" id="statVolume">৳0.00</div>
+        <div class="stat-value" style="color: var(--primary-dark);" id="statVolume">SAR 0.00</div>
         <span style="font-size: 0.75rem; color: var(--gray-500);"><span id="statOrdersCount">0</span> total platform orders</span>
       </div>
       <div class="stat-card">
@@ -228,7 +228,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
           <h2 style="font-size: 1.3rem; font-weight: 800;">🛵 Delivery Fleet Authority</h2>
-          <p style="font-size: 0.85rem; color: var(--gray-500);">Manage rider accounts, Pathao-style cash float balance, and credit allowances.</p>
+          <p style="font-size: 0.85rem; color: var(--gray-500);">Manage rider accounts, Jahez / Hungerstation Mandoob-style cash float balance, and credit allowances.</p>
         </div>
         <button class="btn btn-warning" onclick="openAdminAddUserModal('delivery')">➕ Register New Rider</button>
       </div>
@@ -336,11 +336,11 @@
         </div>
         <div class="form-group">
           <label class="form-label">Contact / WhatsApp Phone *</label>
-          <input type="text" class="form-control" id="adminRestPhone" required placeholder="e.g. 017xxxxxxxx">
+          <input type="text" class="form-control" id="adminRestPhone" required placeholder="e.g. 05xxxxxxxx">
         </div>
         <div class="form-group">
           <label class="form-label">Outlet Address *</label>
-          <input type="text" class="form-control" id="adminRestAddress" required placeholder="e.g. Dhanmondi 27, Dhaka">
+          <input type="text" class="form-control" id="adminRestAddress" required placeholder="e.g. Dhanmondi 27, Riyadh">
         </div>
         <div class="form-group">
           <label class="form-label">Food Availability Follow-up Interval (Hours)</label>
@@ -374,7 +374,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">WhatsApp / Phone *</label>
-          <input type="text" class="form-control" id="adminUserPhone" required placeholder="e.g. 018xxxxxxxx">
+          <input type="text" class="form-control" id="adminUserPhone" required placeholder="e.g. 05xxxxxxxx">
         </div>
         <div class="form-group">
           <label class="form-label">Login PIN / Password</label>
@@ -383,9 +383,9 @@
 
         <div id="adminRiderFields">
           <div class="form-group">
-            <label class="form-label">Initial Cash Float Balance (৳)</label>
+            <label class="form-label">Initial Cash Float Balance (SAR )</label>
             <input type="number" class="form-control" id="adminUserCash" value="1000">
-            <small style="color: var(--gray-500); font-size: 0.75rem;">Pathao rule limit.</small>
+            <small style="color: var(--gray-500); font-size: 0.75rem;">Jahez / Hungerstation Mandoob rule limit.</small>
           </div>
           <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
             <input type="checkbox" id="adminUserCredit" style="width: 18px; height: 18px;">

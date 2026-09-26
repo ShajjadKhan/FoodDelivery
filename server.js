@@ -703,7 +703,7 @@ app.post('/api/orders/place', async (req, res) => {
       subtotal += prod.price * item.quantity;
     }
 
-    const deliveryFee = 50.00;
+    const deliveryFee = 15.00;
     const totalAmount = subtotal + deliveryFee;
 
     const orderResult = await runAsync(
@@ -717,8 +717,8 @@ app.post('/api/orders/place', async (req, res) => {
         deliveryFee,
         deliveryOTP,
         customerOTP,
-        delivery_address || 'Customer Location, Dhaka',
-        customer_phone || '01700000000',
+        delivery_address || 'طريق الملك فهد، حي الملقا، الرياض',
+        customer_phone || '0558889900',
         special_notes || ''
       ]
     );
@@ -762,7 +762,7 @@ app.post('/api/orders/place', async (req, res) => {
     io.emit('order:new', {
       order,
       sound: true,
-      message: `🔔 New Order #${order.order_number} received! (৳${order.total_amount})`
+      message: `🔔 طلب جديد #${order.order_number} بقيمة (${order.total_amount} ر.س / SAR)`
     });
 
     res.json({ success: true, order });
@@ -922,7 +922,7 @@ app.post('/api/orders/:id/accept-delivery', async (req, res) => {
     if (!deliveryUser.allow_credit && deliveryUser.cash_balance < order.total_amount) {
       return res.status(400).json({
         success: false,
-        error: `❌ Insufficient cash float! Order value is ৳${order.total_amount}, but you only have ৳${deliveryUser.cash_balance} cash in hand. Please top up your cash balance or request credit authorization from restaurant owner.`
+        error: `❌ رصيد العهدة النقدية غير كافٍ! قيمة الطلب ${order.total_amount} ر.س (SAR)، ورصيدك المتوفر حالياً ${deliveryUser.cash_balance} ر.س. يرجى زيادة العهدة النقدية أو طلب اعتماد التوصيل الآجل من إدارة المتجر.`
       });
     }
 

@@ -1,4 +1,4 @@
-// Master Admin Panel Logic
+﻿// Master Admin Panel Logic
 let allRestaurants = [];
 
 function switchAdminTab(tabName) {
@@ -61,7 +61,7 @@ async function loadStats() {
     const res = await fetch('/api/admin/stats');
     const data = await res.json();
     if (data.success) {
-      document.getElementById('statVolume').innerText = `৳${data.stats.totalVolume.toFixed(2)}`;
+      document.getElementById('statVolume').innerText = `SAR ${data.stats.totalVolume.toFixed(2)}`;
       document.getElementById('statOrdersCount').innerText = data.stats.totalOrders;
       document.getElementById('statRestaurants').innerText = data.stats.totalRestaurants;
       document.getElementById('statRiders').innerText = data.stats.totalRiders;
@@ -279,7 +279,7 @@ async function loadRiders() {
           </span>
         </td>
         <td>${u.phone}</td>
-        <td><strong style="color: var(--primary-dark); font-size: 1rem;">৳${u.cash_balance.toFixed(2)}</strong></td>
+        <td><strong style="color: var(--primary-dark); font-size: 1rem;">SAR ${u.cash_balance.toFixed(2)}</strong></td>
         <td>
           <span class="badge ${u.allow_credit ? 'badge-food' : 'badge-inventory'}">
             ${u.allow_credit ? '💳 CREDIT ALLOWED' : '🔒 STRICT FLOAT'}
@@ -297,7 +297,7 @@ async function loadRiders() {
 }
 
 async function adminEditRider(id, currentBalance, currentCredit) {
-  const newBal = prompt('Update Cash Float Balance (৳):', currentBalance);
+  const newBal = prompt('Update Cash Float Balance (SAR ):', currentBalance);
   if (newBal === null) return;
   const newCredit = confirm('Grant credit collection privilege (bypass cash float restriction)?');
 
@@ -411,7 +411,7 @@ async function loadAdminOrders() {
         <td>${o.restaurant_name}</td>
         <td>${o.customer_name} (${o.customer_phone})</td>
         <td>${o.delivery_name || '<em style="color:var(--gray-500);">Unassigned</em>'}</td>
-        <td><strong style="color: var(--primary-dark);">৳${o.total_amount}</strong></td>
+        <td><strong style="color: var(--primary-dark);">SAR ${o.total_amount}</strong></td>
         <td><span class="badge badge-${o.status.toLowerCase()}">${o.status}</span></td>
         <td><code>${o.delivery_otp}</code></td>
         <td><code>${o.customer_otp}</code></td>

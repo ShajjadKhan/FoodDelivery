@@ -1,4 +1,4 @@
-// Customer Portal Logic
+﻿// Customer Portal Logic
 let currentCustomer = null;
 let cart = [];
 let activeOrder = null;
@@ -92,7 +92,7 @@ async function loadMenu() {
               ${typeBadge}
             </div>
             <div class="product-desc">${p.description || 'Specially prepared authentic culinary dish.'}</div>
-            <div class="product-price">৳${p.price}</div>
+            <div class="product-price">SAR ${p.price}</div>
           </div>
 
           <div style="margin-top: 1rem;">
@@ -140,8 +140,8 @@ function renderCart() {
   const container = document.getElementById('cartItemsList');
   if (!cart.length) {
     container.innerHTML = '<div style="text-align: center; color: var(--gray-500); padding: 1.5rem;">Your cart is empty. Pick some tasty food!</div>';
-    document.getElementById('cartSubtotal').innerText = '৳0.00';
-    document.getElementById('cartTotal').innerText = '৳50.00';
+    document.getElementById('cartSubtotal').innerText = 'SAR 0.00';
+    document.getElementById('cartTotal').innerText = '15.00 SAR';
     return;
   }
 
@@ -154,20 +154,20 @@ function renderCart() {
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-200);">
         <div style="flex: 1;">
           <strong>${item.name}</strong>
-          <div style="font-size: 0.8rem; color: var(--gray-500);">৳${item.price} each</div>
+          <div style="font-size: 0.8rem; color: var(--gray-500);">SAR ${item.price} each</div>
         </div>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
           <button class="btn btn-secondary btn-sm" onclick="changeQty(${index}, -1)" style="padding: 2px 8px;">-</button>
           <span style="font-weight: bold; min-width: 20px; text-align: center;">${item.quantity}</span>
           <button class="btn btn-secondary btn-sm" onclick="changeQty(${index}, 1)" style="padding: 2px 8px;">+</button>
-          <span style="font-weight: 700; min-width: 60px; text-align: right; color: var(--primary-dark);">৳${itemTotal}</span>
+          <span style="font-weight: 700; min-width: 60px; text-align: right; color: var(--primary-dark);">SAR ${itemTotal}</span>
         </div>
       </div>
     `;
   }).join('');
 
-  document.getElementById('cartSubtotal').innerText = `৳${subtotal.toFixed(2)}`;
-  document.getElementById('cartTotal').innerText = `৳${(subtotal + 50).toFixed(2)}`;
+  document.getElementById('cartSubtotal').innerText = `SAR ${subtotal.toFixed(2)}`;
+  document.getElementById('cartTotal').innerText = `SAR ${(subtotal + 15).toFixed(2)}`;
 }
 
 function changeQty(index, delta) {
@@ -229,7 +229,7 @@ function updateTrackerDisplay(order) {
   const section = document.getElementById('activeOrderSection');
   section.style.display = 'block';
 
-  document.getElementById('trackerOrderNumber').innerText = `Order #${order.order_number} • ৳${order.total_amount}`;
+  document.getElementById('trackerOrderNumber').innerText = `Order #${order.order_number} • SAR ${order.total_amount}`;
   document.getElementById('customerOtpCode').innerText = order.customer_otp || '----';
 
   const badgeMap = {

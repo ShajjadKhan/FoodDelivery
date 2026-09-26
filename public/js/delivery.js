@@ -1,4 +1,4 @@
-// Delivery Rider Portal Logic
+﻿// Delivery Rider Portal Logic
 let currentRider = null;
 let ridersList = [];
 
@@ -22,7 +22,7 @@ async function loadRiders() {
       ridersList = data.users;
       const select = document.getElementById('riderSelect');
       select.innerHTML = data.users.map(u => `
-        <option value="${u.id}">${u.name} (৳${u.cash_balance} ${u.allow_credit ? '• Credit' : '• Float'})</option>
+        <option value="${u.id}">${u.name} (SAR ${u.cash_balance} ${u.allow_credit ? '• Credit' : '• Float'})</option>
       `).join('');
 
       // Default to first or saved rider
@@ -48,7 +48,7 @@ function selectRiderById(id) {
 
   document.getElementById('activeRiderName').innerText = currentRider.name;
   document.getElementById('activeRiderPhone').innerText = `Phone: ${currentRider.phone}`;
-  document.getElementById('activeRiderBalance').innerText = `৳${currentRider.cash_balance.toFixed(2)}`;
+  document.getElementById('activeRiderBalance').innerText = `SAR ${currentRider.cash_balance.toFixed(2)}`;
 
   if (document.getElementById('riderUniqueCodeDisplay')) {
     document.getElementById('riderUniqueCodeDisplay').innerText = currentRider.formatted_code || '---- ---- ---- ----';
@@ -63,7 +63,7 @@ function selectRiderById(id) {
   } else {
     badgeEl.innerHTML = `<span class="badge badge-inventory" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;">🔒 STRICT CASH FLOAT</span>`;
     document.getElementById('floatRuleExplainer').innerHTML = `
-      <strong>Pathao Dispatch Rule:</strong> You have ৳${currentRider.cash_balance.toFixed(2)} cash float. You can only claim orders with total value ≤ ৳${currentRider.cash_balance.toFixed(2)}.
+      <strong>Jahez / Hungerstation Mandoob Dispatch Rule:</strong> You have SAR ${currentRider.cash_balance.toFixed(2)} cash float. You can only claim orders with total value ≤ SAR ${currentRider.cash_balance.toFixed(2)}.
     `;
   }
 
@@ -138,7 +138,7 @@ async function loadRadarOrders() {
       if (!canAfford) {
         floatWarning = `
           <div style="background: #fee2e2; border-left: 3px solid #ef4444; color: #991b1b; padding: 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-bottom: 0.5rem;">
-            ⚠️ <strong>Insufficient Cash Float!</strong> You have ৳${riderBalance}, but order is ৳${order.total_amount}. Top up float or ask restaurant for credit permission.
+            ⚠️ <strong>Insufficient Cash Float!</strong> You have SAR ${riderBalance}, but order is SAR ${order.total_amount}. Top up float or ask restaurant for credit permission.
           </div>
         `;
       }
@@ -159,11 +159,11 @@ async function loadRadarOrders() {
           <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 0.6rem; border-radius: 6px; border: 1px solid var(--gray-200); margin-bottom: 0.75rem;">
             <div>
               <div style="font-size: 0.7rem; color: var(--gray-500);">ORDER VALUE</div>
-              <div style="font-size: 1.15rem; font-weight: 800; color: var(--primary-dark);">৳${order.total_amount}</div>
+              <div style="font-size: 1.15rem; font-weight: 800; color: var(--primary-dark);">SAR ${order.total_amount}</div>
             </div>
             <div style="text-align: right;">
               <div style="font-size: 0.7rem; color: var(--gray-500);">DELIVERY EARNING</div>
-              <div style="font-size: 1.15rem; font-weight: 800; color: #2563eb;">+৳${order.delivery_fee}</div>
+              <div style="font-size: 1.15rem; font-weight: 800; color: #2563eb;">+SAR ${order.delivery_fee}</div>
             </div>
           </div>
 
@@ -188,15 +188,15 @@ function openClaimModal(orderId, orderNum, totalAmount, canAfford) {
   }
 
   if (!canAfford) {
-    showToast(`Cannot accept: Insufficient cash float! Order value is ৳${totalAmount}, you have ৳${currentRider.cash_balance}.`, 'error');
+    showToast(`Cannot accept: Insufficient cash float! Order value is SAR ${totalAmount}, you have SAR ${currentRider.cash_balance}.`, 'error');
     return;
   }
 
   document.getElementById('acceptOrderId').value = orderId;
   document.getElementById('inputOtp').value = '';
   document.getElementById('otpOrderSummary').innerHTML = `
-    <strong>Order #${orderNum}</strong> • Value: <strong>৳${totalAmount}</strong><br>
-    Rider: <strong>${currentRider.name}</strong> (Cash: ৳${currentRider.cash_balance})
+    <strong>Order #${orderNum}</strong> • Value: <strong>SAR ${totalAmount}</strong><br>
+    Rider: <strong>${currentRider.name}</strong> (Cash: SAR ${currentRider.cash_balance})
   `;
 
   openModal('otpAcceptModal');
@@ -274,7 +274,7 @@ async function loadMyActiveOrders() {
           <div style="background: #f8fafc; border: 1px solid var(--gray-200); padding: 0.6rem; border-radius: 6px; margin-bottom: 0.75rem; font-size: 0.85rem;">
             <div style="display: flex; justify-content: space-between;">
               <span>Total Cash to Collect:</span>
-              <strong style="color: var(--primary-dark); font-size: 1.05rem;">৳${order.total_amount}</strong>
+              <strong style="color: var(--primary-dark); font-size: 1.05rem;">SAR ${order.total_amount}</strong>
             </div>
           </div>
 
@@ -318,7 +318,7 @@ function openCompleteModal(orderId, orderNum, totalAmount, customerPhone) {
   document.getElementById('completeOrderSummary').innerHTML = `
     Order: <strong>#${orderNum}</strong><br>
     Customer Phone: <strong>${customerPhone}</strong><br>
-    Collect Cash: <strong style="color: #059669; font-size: 1.1rem;">৳${totalAmount}</strong>
+    Collect Cash: <strong style="color: #059669; font-size: 1.1rem;">SAR ${totalAmount}</strong>
   `;
   openModal('completeDeliveryModal');
   setTimeout(() => document.getElementById('inputCustomerOtp').focus(), 150);

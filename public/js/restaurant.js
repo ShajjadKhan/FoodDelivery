@@ -1,4 +1,4 @@
-// Restaurant Management Logic
+﻿// Restaurant Management Logic
 let currentRestaurant = null;
 let currentFoodItems = [];
 
@@ -120,7 +120,7 @@ async function loadOrders() {
       const itemsList = (order.items || []).map(i => `
         <div style="display: flex; justify-content: space-between; font-size: 0.825rem; margin-bottom: 2px;">
           <span>${i.quantity}x ${i.product_name}</span>
-          <span style="font-weight: 600;">৳${i.subtotal}</span>
+          <span style="font-weight: 600;">SAR ${i.subtotal}</span>
         </div>
       `).join('');
 
@@ -141,7 +141,7 @@ async function loadOrders() {
 
           <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1rem; margin-bottom: 0.75rem;">
             <span>Total to Collect:</span>
-            <span style="color: var(--primary-dark);">৳${order.total_amount}</span>
+            <span style="color: var(--primary-dark);">SAR ${order.total_amount}</span>
           </div>
 
           <div>
@@ -221,7 +221,7 @@ async function loadProducts() {
               ${badge}
             </div>
             <div class="product-desc">${p.description || 'Delicious freshly prepared item.'}</div>
-            <div class="product-price">৳${p.price}</div>
+            <div class="product-price">SAR ${p.price}</div>
             ${inventoryInfo}
           </div>
 
@@ -338,7 +338,7 @@ function openFoodVerificationModal() {
     container.innerHTML = currentFoodItems.map(item => `
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-200);">
         <div>
-          <strong>${item.name}</strong> (৳${item.price})
+          <strong>${item.name}</strong> (SAR ${item.price})
           <div style="font-size: 0.75rem; color: var(--gray-500);">Fresh kitchen prepared item</div>
         </div>
         <div>
@@ -421,7 +421,7 @@ async function loadUsers() {
             <div style="font-size: 0.8rem; color: var(--gray-500);">${u.phone}</div>
           </div>
           <div style="text-align: right;">
-            <div style="font-weight: 800; color: var(--primary-dark); font-size: 1.05rem;">৳${u.cash_balance} Float</div>
+            <div style="font-weight: 800; color: var(--primary-dark); font-size: 1.05rem;">SAR ${u.cash_balance} Float</div>
             <span class="badge ${u.allow_credit ? 'badge-food' : 'badge-inventory'}">
               ${u.allow_credit ? '💳 Credit Allowed' : '🔒 Strict Cash Float'}
             </span>
@@ -487,7 +487,7 @@ async function submitAddUser(e) {
 }
 
 async function editRiderFloat(id, currentBalance, currentCredit) {
-  const newBalance = prompt('Enter new cash float balance (৳):', currentBalance);
+  const newBalance = prompt('Enter new cash float balance (SAR ):', currentBalance);
   if (newBalance === null) return;
 
   const newCredit = confirm('Allow this rider to collect orders on credit without cash balance restrictions?');

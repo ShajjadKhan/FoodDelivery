@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -14,7 +14,7 @@
         <div class="brand-icon">🛵</div>
         <div>
           <h1>Delivery Rider Hub</h1>
-          <span>8-Digit OTP Claim • Pathao Float Check • Cash Collection</span>
+          <span>8-Digit OTP Claim • Jahez / Hungerstation Mandoob Float Check • Cash Collection</span>
         </div>
       </a>
       <div class="nav-links">
@@ -46,7 +46,7 @@
         <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
           <div style="text-align: right;">
             <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Cash in Hand (Float)</div>
-            <div id="activeRiderBalance" style="font-size: 1.75rem; font-weight: 900; color: #34d399;">৳0.00</div>
+            <div id="activeRiderBalance" style="font-size: 1.75rem; font-weight: 900; color: #34d399;">SAR 0.00</div>
           </div>
 
           <div style="text-align: right;">
@@ -60,12 +60,12 @@
         </div>
       </div>
 
-      <!-- Pathao Rule Warning Note -->
+      <!-- Jahez / Hungerstation Mandoob Rule Warning Note -->
       <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #334155; font-size: 0.825rem; color: #cbd5e1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
           <span>ℹ️</span>
           <span id="floatRuleExplainer">
-            <strong>Pathao Dispatch Rule:</strong> You can only accept orders where order total ≤ your cash float. Orders exceeding your cash balance will be locked unless credit is authorized by the restaurant.
+            <strong>Jahez / Hungerstation Mandoob Dispatch Rule:</strong> You can only accept orders where order total ≤ your cash float. Orders exceeding your cash balance will be locked unless credit is authorized by the restaurant.
           </span>
         </div>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -182,7 +182,7 @@
       </div>
       <form onsubmit="submitUpdateCash(event)">
         <div class="form-group">
-          <label class="form-label">Current Cash Float in Hand (৳)</label>
+          <label class="form-label">Current Cash Float in Hand (SAR )</label>
           <input type="number" step="10" class="form-control" id="newCashInput" required min="0" placeholder="e.g. 2000">
           <small style="color: var(--gray-500); font-size: 0.75rem;">Your cash float determines how much order value you can accept.</small>
         </div>
