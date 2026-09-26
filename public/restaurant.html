@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant & Kitchen Portal | Food Delivery System</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🏪</div>
+        <div>
+          <h1 id="restaurantTitle">Restaurant Management Portal</h1>
+          <span>Live Orders • Kitchen Inventory • 7h Availability Follow-up</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <button class="nav-link active" onclick="switchTab('orders')">📋 Live Orders (<span id="pendingCount">0</span>)</button>
+        <button class="nav-link" onclick="switchTab('menu')">🍲 Menu & Inventory</button>
+        <button class="nav-link" onclick="switchTab('users')">👥 Authorized Users</button>
+        <button class="nav-link" onclick="openSettingsModal()">⚙️ Settings</button>
+        <a href="/" class="nav-link">🏠 Hub</a>
+      </div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span id="socketStatusText">Live Connected</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Periodic 7-Hour Food Availability Reminder Banner -->
+    <div id="availabilityBanner" class="card" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-left: 6px solid #d97706;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h3 style="color: #92400e; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+            ⏰ Periodic Food Availability Check Due!
+          </h3>
+          <p style="color: #78350f; font-size: 0.875rem; margin-top: 0.25rem;">
+            Food items can finish quickly. It has reached your configured verification interval. Please verify if your kitchen food items are still available.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-warning" onclick="openFoodVerificationModal()">🔍 Verify Food Items Now</button>
+          <button class="btn btn-secondary btn-sm" onclick="quickVerifyAllFood()">✅ All Available</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 1: Live Orders -->
+    <section id="tab-orders">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="font-size: 1.4rem; font-weight: 800;">🛎️ Live Kitchen & Delivery Dispatch Board</h2>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary btn-sm" onclick="loadOrders()">🔄 Refresh</button>
+          <button class="btn btn-warning btn-sm" onclick="openFoodVerificationModal()">⏰ Kitchen Food Check</button>
+        </div>
+      </div>
+
+      <div class="grid-3" id="ordersGrid">
+        <div style="text-align: center; color: var(--gray-500); padding: 2rem; grid-column: 1 / -1;">
+          Loading live orders...
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Menu & Inventory Management -->
+    <section id="tab-menu" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800;">🍲 Menu & Inventory Control</h2>
+          <p style="font-size: 0.85rem; color: var(--gray-500);">
+            Differentiate between <strong>Fresh Food Items</strong> (periodic 7-hour follow-up) and <strong>Packaged Store Inventory</strong> (quantity & expiry date).
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddProductModal()">➕ Add New Item</button>
+      </div>
+
+      <div class="grid-3" id="productsGrid">
+        <div style="text-align: center; color: var(--gray-500); padding: 2rem; grid-column: 1 / -1;">
+          Loading products...
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Authorized Users & Float Controls -->
+    <section id="tab-users" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800;">🛡️ Anti-Fake Order User Control</h2>
+          <p style="font-size: 0.85rem; color: var(--gray-500);">
+            Only restaurant managers can create delivery riders and verified customers. Set credit authorization & float balances.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-primary" onclick="openAddUserModal('delivery')">➕ Add Delivery Rider</button>
+          <button class="btn btn-secondary" onclick="openAddUserModal('customer')">➕ Add Customer</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Delivery Persons -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">🛵 Authorized Delivery Persons</h3>
+          </div>
+          <div id="deliveryUsersList">Loading...</div>
+        </div>
+
+        <!-- Verified Customers -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">🛒 Verified Customers</h3>
+          </div>
+          <div id="customerUsersList">Loading...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: 7-Hour Food Availability Verification -->
+  <div class="modal-overlay" id="foodVerificationModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title">⏰ Periodic Food Availability Verification</h3>
+        <button class="modal-close" onclick="closeModal('foodVerificationModal')">&times;</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--gray-700); margin-bottom: 1rem;">
+        Is this food still fresh and available in your kitchen right now? Toggle items that are finished so customers cannot order them.
+      </p>
+      <div id="foodCheckItemList" style="max-height: 280px; overflow-y: auto; margin-bottom: 1rem;">
+        Loading items...
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button class="btn btn-secondary" onclick="closeModal('foodVerificationModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitFoodVerification()">✅ Confirm & Reset 7-Hour Timer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add New Product -->
+  <div class="modal-overlay" id="addProductModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title">➕ Add Product / Food Item</h3>
+        <button class="modal-close" onclick="closeModal('addProductModal')">&times;</button>
+      </div>
+      <form id="addProductForm" onsubmit="submitAddProduct(event)">
+        <div class="form-group">
+          <label class="form-label">Item Name *</label>
+          <input type="text" class="form-control" id="prodName" required placeholder="e.g. Mutton Biryani / Soft Drink">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (৳) *</label>
+          <input type="number" step="0.5" class="form-control" id="prodPrice" required placeholder="e.g. 250">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <input type="text" class="form-control" id="prodCat" placeholder="e.g. Main Course, Beverages, Desserts">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" id="prodDesc" rows="2" placeholder="Ingredients, special taste..."></textarea>
+        </div>
+
+        <!-- Food vs Inventory Item Option -->
+        <div class="form-group" style="background: var(--gray-50); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--gray-200);">
+          <label class="form-label" style="font-weight: 700; color: var(--primary-dark);">Inventory Tracking Type *</label>
+          <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;">
+              <input type="radio" name="item_type" value="food" checked onchange="toggleItemTypeFields()">
+              <span><strong>Food Item</strong> (Fresh, periodic 7h follow-up check)</span>
+            </label>
+          </div>
+          <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;">
+              <input type="radio" name="item_type" value="inventory" onchange="toggleItemTypeFields()">
+              <span><strong>Shop / Packaged Inventory</strong> (Stock quantity & expiry date)</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="inventorySpecificFields" style="display: none; background: #eef2ff; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Available Stock Quantity *</label>
+            <input type="number" class="form-control" id="prodStock" value="20" min="0">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Expiry Date</label>
+            <input type="date" class="form-control" id="prodExpiry">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addProductModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add User (Anti-Fake Order Protection) -->
+  <div class="modal-overlay" id="addUserModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title" id="addUserModalTitle">➕ Register Authorized User</h3>
+        <button class="modal-close" onclick="closeModal('addUserModal')">&times;</button>
+      </div>
+      <form id="addUserForm" onsubmit="submitAddUser(event)">
+        <input type="hidden" id="userRole" value="delivery">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-control" id="userName" required placeholder="e.g. Shakil Delivery / Customer Name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp / Mobile Phone *</label>
+          <input type="text" class="form-control" id="userPhone" required placeholder="e.g. 017xxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Login PIN / Password</label>
+          <input type="password" class="form-control" id="userPassword" value="1234">
+        </div>
+
+        <div id="deliveryRiderFields">
+          <div class="form-group">
+            <label class="form-label">Initial Cash Float Balance (৳)</label>
+            <input type="number" class="form-control" id="userCash" value="1000" placeholder="Amount rider currently holds">
+            <small style="color: var(--gray-500); font-size: 0.75rem;">Pathao rule: rider can only accept orders up to this balance.</small>
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+            <input type="checkbox" id="userAllowCredit" style="width: 18px; height: 18px;">
+            <label for="userAllowCredit" style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+              Allow Credit Collection (Can accept orders without cash float limit)
+            </label>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Settings -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title">⚙️ Restaurant Settings</h3>
+        <button class="modal-close" onclick="closeModal('settingsModal')">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Food Availability Follow-up Interval (Hours)</label>
+        <input type="number" class="form-control" id="settingInterval" value="7" min="1" max="48">
+        <small style="color: var(--gray-500); font-size: 0.75rem;">
+          Default is 7 hours. System will pop up reminder asking "Is the food available?" every 7 hours.
+        </small>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button class="btn btn-secondary" onclick="closeModal('settingsModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/socket-client.js"></script>
+  <script src="/js/restaurant.js"></script>
+</body>
+</html>

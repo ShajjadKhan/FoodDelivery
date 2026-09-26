@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Order & Live Tracking | Food Delivery System</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Progress Tracker Styles */
+    .timeline {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin: 1.5rem 0 1rem 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      right: 20px;
+      height: 4px;
+      background: var(--gray-200);
+      z-index: 1;
+    }
+    .timeline-step {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      flex: 1;
+    }
+    .step-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gray-200);
+      color: var(--gray-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin: 0 auto 0.5rem auto;
+      border: 3px solid var(--white);
+      transition: all 0.3s ease;
+    }
+    .step-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gray-500);
+    }
+    .timeline-step.active .step-icon {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+    }
+    .timeline-step.active .step-label {
+      color: var(--primary-dark);
+      font-weight: 800;
+    }
+    .timeline-step.completed .step-icon {
+      background: var(--primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🛒</div>
+        <div>
+          <h1>Customer Food Portal</h1>
+          <span>Browse Menu • Live Real-Time Tracker • Delivery OTP</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <label style="font-size: 0.85rem; font-weight: 700;">Customer:</label>
+          <select id="customerSelect" class="form-control" style="width: auto; padding: 0.35rem 0.6rem; font-weight: 600;" onchange="changeCustomer()">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="toggleCartDrawer()">
+          🛍️ Cart (<span id="cartCount">0</span>)
+        </button>
+        <a href="/" class="nav-link">🏠 Hub</a>
+      </div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span>Live Updates Active</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Active Order Live Tracker (If order placed) -->
+    <div id="activeOrderSection" class="card" style="display: none; border-left: 6px solid var(--primary); background: #f0fdf4;">
+      <div class="card-header" style="border-color: #bbf7d0;">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; color: #166534; font-weight: 700;">Real-Time Order Tracking</span>
+          <h2 id="trackerOrderNumber" style="font-size: 1.3rem; font-weight: 800; color: #14532d;">Order #...</h2>
+        </div>
+        <div id="trackerStatusBadge">
+          <span class="badge badge-accepted">IN PROGRESS</span>
+        </div>
+      </div>
+
+      <!-- Timeline Progress Bar -->
+      <div class="timeline" id="orderTimeline">
+        <div class="timeline-step" id="step-pending">
+          <div class="step-icon">1</div>
+          <div class="step-label">Placed</div>
+        </div>
+        <div class="timeline-step" id="step-accepted">
+          <div class="step-icon">2</div>
+          <div class="step-label">Accepted</div>
+        </div>
+        <div class="timeline-step" id="step-preparing">
+          <div class="step-icon">3</div>
+          <div class="step-label">Kitchen</div>
+        </div>
+        <div class="timeline-step" id="step-ready">
+          <div class="step-icon">4</div>
+          <div class="step-label">Ready</div>
+        </div>
+        <div class="timeline-step" id="step-out">
+          <div class="step-icon">5</div>
+          <div class="step-label">On Way</div>
+        </div>
+        <div class="timeline-step" id="step-delivered">
+          <div class="step-icon">6</div>
+          <div class="step-label">Delivered</div>
+        </div>
+      </div>
+
+      <!-- Customer Confirmation OTP Banner -->
+      <div style="background: white; border: 2px dashed #059669; border-radius: 8px; padding: 1rem; margin-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <div style="font-size: 0.8rem; font-weight: 700; color: #047857; text-transform: uppercase;">Your Delivery Confirmation OTP</div>
+          <p style="font-size: 0.75rem; color: var(--gray-700); margin: 0;">Give this code to the rider <em>ONLY</em> after receiving your food package!</p>
+        </div>
+        <div id="customerOtpCode" style="font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #059669; font-family: monospace; background: #ecfdf5; padding: 0.3rem 0.8rem; border-radius: 6px;">
+          ----
+        </div>
+      </div>
+
+      <div id="trackerOrderDetails" style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--gray-700);"></div>
+    </div>
+
+    <!-- Restaurant Banner -->
+    <div class="card" style="background: white; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 id="restNameBanner" style="font-size: 1.4rem; font-weight: 800;">Sultan's Kitchen & Grill</h2>
+        <div style="font-size: 0.85rem; color: var(--gray-500);">📍 Road 11, Banani, Dhaka • Open for Orders</div>
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <span class="badge badge-food">Fresh Food Items Available</span>
+        <span class="badge badge-inventory">Packaged Stock Tracked</span>
+      </div>
+    </div>
+
+    <!-- Menu Display Grid -->
+    <div style="margin-bottom: 1rem;">
+      <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.25rem;">🍲 Explore Delicious Menu</h3>
+      <p style="font-size: 0.85rem; color: var(--gray-500);">Freshly cooked kitchen delicacies and packaged beverages.</p>
+    </div>
+
+    <div class="grid-3" id="customerMenuGrid">
+      <div style="text-align: center; color: var(--gray-500); padding: 2rem; grid-column: 1 / -1;">
+        Loading appetizing items...
+      </div>
+    </div>
+  </main>
+
+  <!-- CART & CHECKOUT MODAL -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title">🛍️ Your Cart & Checkout</h3>
+        <button class="modal-close" onclick="closeModal('cartModal')">&times;</button>
+      </div>
+
+      <div id="cartItemsList" style="max-height: 220px; overflow-y: auto; margin-bottom: 1rem;">
+        <div style="text-align: center; color: var(--gray-500); padding: 1rem;">Cart is currently empty.</div>
+      </div>
+
+      <div style="background: var(--gray-100); padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>Subtotal:</span>
+          <strong id="cartSubtotal">৳0.00</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>Delivery Fee:</span>
+          <strong>৳50.00</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; border-top: 1px dashed var(--gray-300); padding-top: 6px; margin-top: 4px;">
+          <span>Total:</span>
+          <span id="cartTotal" style="color: var(--primary-dark);">৳50.00</span>
+        </div>
+      </div>
+
+      <form onsubmit="submitCheckout(event)">
+        <div class="form-group">
+          <label class="form-label">Delivery Address *</label>
+          <input type="text" class="form-control" id="orderAddress" required value="House 42, Road 15, Dhanmondi, Dhaka">
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp Contact Number *</label>
+          <input type="text" class="form-control" id="orderPhone" required value="01700000000">
+          <small style="color: var(--gray-500); font-size: 0.75rem;">You will receive your delivery confirmation OTP here.</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Special Cooking / Delivery Notes</label>
+          <input type="text" class="form-control" id="orderNotes" placeholder="e.g. Less spicy, extra cucumber">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('cartModal')">Back</button>
+          <button type="submit" class="btn btn-primary" id="btnPlaceOrder">✅ Confirm & Place Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/socket-client.js"></script>
+  <script src="/js/customer.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Delivery System | Real-time Portal Hub</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🍲</div>
+        <div>
+          <h1>FoodExpress System</h1>
+          <span>WebSocket Real-Time Food Delivery Management</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="/restaurant.html" class="nav-link">🏪 Restaurant Portal</a>
+        <a href="/delivery.html" class="nav-link">🛵 Delivery Person</a>
+        <a href="/customer.html" class="nav-link">🛒 Customer App</a>
+      </div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span>Port 3333 Live</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="container">
+    <div class="card" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); color: white; padding: 2.5rem 1.5rem; text-align: center; border: none; margin-bottom: 2rem;">
+      <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem;">Real-Time Food Delivery & Inventory Network</h2>
+      <p style="max-width: 750px; margin: 0 auto 1.5rem auto; color: #a7f3d0; font-size: 1.05rem;">
+        Complete end-to-end dispatch platform featuring WebSocket push notifications, 8-digit OTP handover protection, Pathao-style cash float balance rules, and 7-hour food availability checks.
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/restaurant.html" class="btn btn-warning" style="font-size: 1rem; padding: 0.75rem 1.5rem;">🏪 Launch Restaurant Portal</a>
+        <a href="/delivery.html" class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 1.5rem;">🛵 Launch Delivery Radar</a>
+        <a href="/customer.html" class="btn btn-secondary" style="font-size: 1rem; padding: 0.75rem 1.5rem;">🛒 Place Order as Customer</a>
+      </div>
+    </div>
+
+    <!-- 3 Role Portals Grid -->
+    <div class="grid-3" style="margin-bottom: 2rem;">
+      <!-- Role 1: Restaurant -->
+      <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🏪</div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">1. Restaurant / Shop</h3>
+        <p style="color: var(--gray-700); font-size: 0.875rem; margin-bottom: 1rem;">
+          Manage kitchen orders, create fresh food vs packaged inventory, set periodic 7-hour availability verification reminders, and manage delivery/customer users.
+        </p>
+        <ul style="font-size: 0.825rem; color: var(--gray-700); margin-bottom: 1.25rem; padding-left: 1.2rem;">
+          <li>Real-time WebSocket audio chime on new orders</li>
+          <li>7-Hour food availability follow-up popup</li>
+          <li>Mark food ready & dispatch 8-digit OTP</li>
+          <li>Anti-fake order user onboarding</li>
+        </ul>
+        <a href="/restaurant.html" class="btn btn-primary" style="width: 100%;">Open Restaurant Dashboard &rarr;</a>
+      </div>
+
+      <!-- Role 2: Delivery Person -->
+      <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛵</div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">2. Delivery Person</h3>
+        <p style="color: var(--gray-700); font-size: 0.875rem; margin-bottom: 1rem;">
+          Real-time order radar with push notifications, 8-digit OTP verification modal to prevent accidental clicks, and Pathao-style cash float check.
+        </p>
+        <ul style="font-size: 0.825rem; color: var(--gray-700); margin-bottom: 1.25rem; padding-left: 1.2rem;">
+          <li>Cash float / balance check before acceptance</li>
+          <li>8-digit OTP verification modal popup</li>
+          <li>Collect cash from customer upon delivery</li>
+          <li>Real-time delivery progress updates</li>
+        </ul>
+        <a href="/delivery.html" class="btn btn-warning" style="width: 100%;">Open Delivery Radar &rarr;</a>
+      </div>
+
+      <!-- Role 3: Customer -->
+      <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛒</div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">3. Customer Portal</h3>
+        <p style="color: var(--gray-700); font-size: 0.875rem; margin-bottom: 1rem;">
+          Browse available kitchen items & packaged store products, add to cart, and track live order preparation & delivery progress.
+        </p>
+        <ul style="font-size: 0.825rem; color: var(--gray-700); margin-bottom: 1.25rem; padding-left: 1.2rem;">
+          <li>Live food availability badges</li>
+          <li>Real-time WebSocket progress tracker</li>
+          <li>Delivery confirmation OTP display</li>
+          <li>WhatsApp order receipt simulation</li>
+        </ul>
+        <a href="/customer.html" class="btn btn-secondary" style="width: 100%;">Open Customer App &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Live System Features & Flow Architecture -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">⚙️ Complete System Flow & Protection Architecture</h3>
+      </div>
+      <div class="grid-2" style="font-size: 0.9rem;">
+        <div>
+          <h4 style="color: var(--primary-dark); font-weight: 700; margin-bottom: 0.5rem;">🛡️ Anti-Fake Order & Cash Management</h4>
+          <p style="color: var(--gray-700); margin-bottom: 0.75rem;">
+            <strong>Closed Ecosystem:</strong> Only authenticated restaurant owners can register authorized delivery riders and customers. This prevents bot spam and fraudulent orders.
+          </p>
+          <p style="color: var(--gray-700);">
+            <strong>Pathao-style Float Rule:</strong> Delivery personnel must declare their cash in hand. If their balance is lower than the order total, they cannot accept the order unless the restaurant has specifically granted them <em>Credit Collection Privileges</em>.
+          </p>
+        </div>
+        <div>
+          <h4 style="color: var(--secondary); font-weight: 700; margin-bottom: 0.5rem;">⏰ 7-Hour Food Reminder & 8-Digit OTP</h4>
+          <p style="color: var(--gray-700); margin-bottom: 0.75rem;">
+            <strong>Food Item Follow-up:</strong> Daily food items can run out anytime. Every 7 hours (configurable in settings), a popup prompts the kitchen: <em>"Are these food items still available?"</em>
+          </p>
+          <p style="color: var(--gray-700);">
+            <strong>Accidental Click Prevention:</strong> When food is ready, the rider receives an 8-digit OTP via Web push & WhatsApp. When accepting the job, an OTP input box pops up to ensure conscious acceptance.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- WhatsApp & Web Push Audit Feed -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">📱 Live WhatsApp & Web Push Notification Stream</h3>
+        <button class="btn btn-sm btn-secondary" onclick="loadNotifications()">Refresh Stream</button>
+      </div>
+      <div id="notificationLogsList" style="max-height: 250px; overflow-y: auto;">
+        <div style="text-align: center; color: var(--gray-500); padding: 1rem;">Loading notification logs...</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/socket-client.js"></script>
+  <script>
+    async function loadNotifications() {
+      try {
+        const res = await fetch('/api/notifications');
+        const data = await res.json();
+        const container = document.getElementById('notificationLogsList');
+        if (data.success && data.logs.length > 0) {
+          container.innerHTML = data.logs.map(log => `
+            <div style="border-bottom: 1px solid var(--gray-200); padding: 0.6rem 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+              <div>
+                <span class="badge ${log.channel === 'WHATSAPP' ? 'badge-food' : 'badge-inventory'}">${log.channel}</span>
+                <span style="font-weight: 700; font-size: 0.85rem; margin-left: 0.4rem;">${log.recipient_role.toUpperCase()}: ${log.recipient_phone}</span>
+                ${log.otp_code ? `<span style="background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; margin-left: 0.4rem;">OTP: ${log.otp_code}</span>` : ''}
+                <div style="font-size: 0.8rem; color: var(--gray-700); margin-top: 0.25rem; white-space: pre-wrap;">${log.message}</div>
+              </div>
+              <div style="font-size: 0.75rem; color: var(--gray-500); white-space: nowrap;">
+                ${new Date(log.created_at).toLocaleTimeString()}
+              </div>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '<div style="text-align: center; color: var(--gray-500); padding: 1rem;">No notification logs yet. Place an order to see live triggers!</div>';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    loadNotifications();
+
+    socket.on('push:notification', () => {
+      loadNotifications();
+    });
+  </script>
+</body>
+</html>
